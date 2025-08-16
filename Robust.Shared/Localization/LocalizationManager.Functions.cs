@@ -164,27 +164,28 @@ namespace Robust.Shared.Localization
         }
 
         /// <summary>
-        /// Returns the gender of the entity passed in; either Male, Female, Neuter or Epicene.
+        /// Returns the ID of the pronoun prototype used by the entity.
         /// </summary>
         private ILocValue FuncGender(LocArgs args)
         {
-            if (args.Args.Count < 1) return new LocValueString(nameof(Gender.Neuter));
+            // entities without a grammar component will most frequently be inanimate objects.
+            if (args.Args.Count < 1) return new LocValueString("it");
 
             ILocValue entity0 = args.Args[0];
             if (entity0.Value is EntityUid entity)
             {
-                if (_entMan.TryGetComponent(entity, out GrammarComponent? grammar) && grammar.Gender.HasValue)
+                if (_entMan.TryGetComponent(entity, out GrammarComponent? grammar) && grammar.Pronoun != null)
                 {
-                    return new LocValueString(grammar.Gender.Value.ToString().ToLowerInvariant());
+                    return new LocValueString(grammar.Pronoun.ID.ToString().ToLowerInvariant());
                 }
 
-                if (TryGetEntityLocAttrib(entity, "gender", out var gender))
+                if (TryGetEntityLocAttrib(entity, "pronoun", out var pronoun))
                 {
-                    return new LocValueString(gender);
+                    return new LocValueString(pronoun);
                 }
             }
 
-            return new LocValueString(nameof(Gender.Neuter));
+            return new LocValueString("it");
         }
 
         /// <summary>

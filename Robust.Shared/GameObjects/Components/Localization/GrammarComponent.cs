@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Robust.Shared.Enums;
 using Robust.Shared.GameStates;
 using Robust.Shared.IoC;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.Manager.Attributes;
 using Robust.Shared.ViewVariables;
 
@@ -15,15 +15,18 @@ namespace Robust.Shared.GameObjects.Components.Localization;
 // [Access(typeof(GrammarSystem))] TODO access
 public sealed partial class GrammarComponent : Component
 {
+    [Dependency] private readonly IPrototypeManager _proto = default!;
+
     [DataField, AutoNetworkedField]
     public Dictionary<string, string> Attributes = new();
 
     [ViewVariables]
-    public Gender? Gender
+    public Pronoun? Pronoun
     {
-        get => Attributes.TryGetValue("gender", out var g) ? Enum.Parse<Gender>(g, true) : null;
+        get => Attributes.TryGetValue("pronoun", out var p) ?
+            _proto.Index<Pronoun>(p) : null;
         [Obsolete("Use GrammarSystem.SetGender instead")]
-        set => IoCManager.Resolve<IEntityManager>().System<GrammarSystem>().SetGender((Owner, this), value);
+        set => IoCManager.Resolve<IEntityManager>().System<GrammarSystem>().SetPronoun((Owner, this), value);
     }
 
     [ViewVariables]

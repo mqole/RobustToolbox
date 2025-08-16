@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Robust.Shared.Enums;
 using Robust.Shared.GameObjects.Components.Localization;
+using Robust.Shared.Prototypes;
 
 namespace Robust.Shared.GameObjects;
 
@@ -27,9 +27,9 @@ public sealed class GrammarSystem : EntitySystem
         Dirty(grammar);
     }
 
-    public void SetGender(Entity<GrammarComponent> grammar, Gender? gender)
+    public void SetPronoun(Entity<GrammarComponent> grammar, Pronoun? pronoun)
     {
-        Set(grammar, "gender", gender?.ToString());
+        Set(grammar, "pronoun", pronoun?.ToString());
     }
 
     public void SetProperNoun(Entity<GrammarComponent> grammar, bool? proper)
