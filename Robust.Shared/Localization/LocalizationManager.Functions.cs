@@ -5,21 +5,22 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Linguini.Bundle;
 using Linguini.Shared.Types.Bundle;
-using Robust.Shared.Enums;
 using Robust.Shared.GameObjects;
 using Robust.Shared.GameObjects.Components.Localization;
+using Robust.Shared.IoC;
 using Robust.Shared.Maths;
+using Robust.Shared.Prototypes;
 
 namespace Robust.Shared.Localization
 {
     internal abstract partial class LocalizationManager
     {
+        [Dependency] IPrototypeManager _proto = default!;
         private static readonly Regex RegexWordMatch = new Regex(@"\w+");
 
         private void AddBuiltInFunctions(FluentBundle bundle)
         {
-            // Grammatical gender / pronouns
-            AddCtxFunction(bundle, "GENDER", FuncGender);
+            // Grammatical pronouns
             AddCtxFunction(bundle, "SUBJECT", FuncSubject);
             AddCtxFunction(bundle, "OBJECT", FuncObject);
             AddCtxFunction(bundle, "DAT-OBJ", FuncDatObj);
@@ -164,87 +165,115 @@ namespace Robust.Shared.Localization
         }
 
         /// <summary>
-        /// Returns the ID of the pronoun prototype used by the entity.
+        /// Returns the pronoun prototype used by the entity.
         /// </summary>
-        private ILocValue FuncGender(LocArgs args)
+        private Pronoun FuncPronoun(LocArgs args)
         {
-            // entities without a grammar component will most frequently be inanimate objects.
-            if (args.Args.Count < 1) return new LocValueString("it");
+
+            if (args.Args.Count < 1) return _proto.Index<Pronoun>("it"); // TODO validate this exists
 
             ILocValue entity0 = args.Args[0];
             if (entity0.Value is EntityUid entity)
             {
                 if (_entMan.TryGetComponent(entity, out GrammarComponent? grammar) && grammar.Pronoun != null)
                 {
-                    return new LocValueString(grammar.Pronoun.ID.ToString().ToLowerInvariant());
+                    return  grammar.Pronoun;
                 }
 
                 if (TryGetEntityLocAttrib(entity, "pronoun", out var pronoun))
                 {
-                    return new LocValueString(pronoun);
+                    return _proto.Index<Pronoun>(pronoun);
                 }
             }
 
-            return new LocValueString("it");
+            return _proto.Index<Pronoun>("it"); // TODO validate this exists;
         }
 
         /// <summary>
-        /// Returns the respective subject pronoun (he, she, they, it) for the entity's gender.
+        /// Returns the respective subject pronoun (he, she, they, it) for the entity's pronoun ID.
         /// </summary>
         private ILocValue FuncSubject(LocArgs args)
         {
-            return new LocValueString(GetString("zzzz-subject-pronoun", ("ent", args.Args[0])));
+            var pronoun = FuncPronoun(args);
+            string prefix = pronoun.Custom ?
+                pronoun.ID : "";
+
+            return new LocValueString(prefix + GetString(pronoun.Subject));
         }
 
         /// <summary>
-        /// Returns the respective object pronoun (him, her, them, it) for the entity's gender.
+        /// Returns the respective object pronoun (him, her, them, it) for the entity's pronoun ID.
         /// </summary>
         private ILocValue FuncObject(LocArgs args)
         {
-            return new LocValueString(GetString("zzzz-object-pronoun", ("ent", args.Args[0])));
+            var pronoun = FuncPronoun(args);
+            string prefix = pronoun.Custom ?
+                pronoun.ID : "";
+
+            return new LocValueString(prefix + GetString(pronoun.Object));
         }
 
         /// <summary>
-        /// Returns the dative form pronoun for the entity's gender.
+        /// Returns the dative form pronoun for the entity's pronoun ID.
         /// This method is intended for languages with a dative case, where indirect objects
         /// (e.g., "to him," "for her") require specific forms. Not applicable for en-US locale.
         /// </summary>
         private ILocValue FuncDatObj(LocArgs args)
         {
-            return new LocValueString(GetString("zzzz-dat-object", ("ent", args.Args[0])));
+            var pronoun = FuncPronoun(args);
+            string prefix = pronoun.Custom ?
+                pronoun.ID : "";
+
+            return new LocValueString(prefix + GetString(pronoun.DatObj));
         }
 
         /// <summary>
-        /// Returns the respective genitive form (pronoun or possessive adjective) for the entity's gender.
+        /// Returns the respective genitive form (pronoun or possessive adjective) for the entity's pronoun ID.
         /// This is used in languages with a genitive case to indicate possession or related relationships,
         /// e.g., "у него" (Russian), "seines Vaters" (German).
         private ILocValue FuncGenitive(LocArgs args)
         {
-            return new LocValueString(GetString("zzzz-genitive", ("ent", args.Args[0])));
+            var pronoun = FuncPronoun(args);
+            string prefix = pronoun.Custom ?
+                pronoun.ID : "";
+
+            return new LocValueString(prefix + GetString(pronoun.Genitive));
         }
 
         /// <summary>
-        /// Returns the respective possessive adjective (his, her, their, its) for the entity's gender.
+        /// Returns the respective possessive adjective (his, her, their, its) for the entity's pronoun ID.
         /// </summary>
         private ILocValue FuncPossAdj(LocArgs args)
         {
-            return new LocValueString(GetString("zzzz-possessive-adjective", ("ent", args.Args[0])));
+            var pronoun = FuncPronoun(args);
+            string prefix = pronoun.Custom ?
+                pronoun.ID : "";
+
+            return new LocValueString(prefix + GetString(pronoun.PossAdj));
         }
 
         /// <summary>
-        /// Returns the respective possessive pronoun (his, hers, theirs, its) for the entity's gender.
+        /// Returns the respective possessive pronoun (his, hers, theirs, its) for the entity's pronoun ID.
         /// </summary>
         private ILocValue FuncPossPronoun(LocArgs args)
         {
-            return new LocValueString(GetString("zzzz-possessive-pronoun", ("ent", args.Args[0])));
+            var pronoun = FuncPronoun(args);
+            string prefix = pronoun.Custom ?
+                pronoun.ID : "";
+
+            return new LocValueString(prefix + GetString(pronoun.PossPronoun));
         }
 
         /// <summary>
-        /// Returns the respective reflexive pronoun (himself, herself, themselves, itself) for the entity's gender.
+        /// Returns the respective reflexive pronoun (himself, herself, themselves, itself) for the entity's pronoun ID.
         /// </summary>
         private ILocValue FuncReflexive(LocArgs args)
         {
-            return new LocValueString(GetString("zzzz-reflexive-pronoun", ("ent", args.Args[0])));
+            var pronoun = FuncPronoun(args);
+            string prefix = pronoun.Custom ?
+                pronoun.ID : "";
+
+            return new LocValueString(prefix + GetString(pronoun.Reflexive));
         }
 
         /// <summary>
@@ -252,46 +281,48 @@ namespace Robust.Shared.Localization
         /// </summary>
         private ILocValue FuncCounter(LocArgs args)
         {
-            if (args.Args.Count < 1) return new LocValueString(GetString("zzzz-counter-default"));
+            var pronoun = FuncPronoun(args);
+            string prefix = pronoun.Custom ?
+                pronoun.ID : "";
 
-            ILocValue entity0 = args.Args[0];
-            if (entity0.Value is EntityUid entity)
-            {
-                if (TryGetEntityLocAttrib(entity, "counter", out var counter))
-                {
-                    return new LocValueString(counter);
-                }
-            }
-
-            return new LocValueString(GetString("zzzz-counter-default"));
+            return new LocValueString(prefix + GetString(pronoun.Counter));
         }
 
         /// <summary>
-        /// Returns the respective conjugated form of "to be" (is for male/female/neuter, are for epicene) for the entity's gender.
+        /// Returns the respective conjugated form of "to be" (is/are) for the entity's pronoun ID.
         /// </summary>
         private ILocValue FuncConjugateBe(LocArgs args)
         {
-            return new LocValueString(GetString("zzzz-conjugate-be", ("ent", args.Args[0])));
+            var pronoun = FuncPronoun(args);
+            string conjugate = pronoun.Plural ?
+                "-plural" : "-singular";
+
+            return new LocValueString("be" + conjugate);
         }
 
         /// <summary>
-        /// Returns the respective conjugated form of "to have" (has for male/female/neuter, have for epicene) for the entity's gender.
+        /// Returns the respective conjugated form of "to have" (has/have) for the entity's pronoun ID.
         /// </summary>
         private ILocValue FuncConjugateHave(LocArgs args)
         {
-            return new LocValueString(GetString("zzzz-conjugate-have", ("ent", args.Args[0])));
+            var pronoun = FuncPronoun(args);
+            string conjugate = pronoun.Plural ?
+                "-plural" : "-singular";
+
+            return new LocValueString("have" + conjugate);
         }
 
         /// <summary>
-        /// Returns the basic conjugated form of a verb. The first string argument is the base verb, the second string argument is the form
-        /// for he/she/it.
+        /// Returns the basic conjugated form of a verb. Plural pronouns use the base verb (first value), others conjugate (second value).
         /// e.g. run -> he runs/she runs/they run/it runs
         /// </summary>
         private ILocValue FuncConjugateBasic(LocArgs args)
         {
-            var first = ((LocValueString)args.Args[1]).Value;
-            var second = ((LocValueString)args.Args[2]).Value;
-            return new LocValueString(GetString("zzzz-conjugate-basic", ("ent", args.Args[0]), ("first", first), ("second", second)));
+            var pronoun = FuncPronoun(args);
+            string conjugate = pronoun.Plural ?
+                "-plural" : "-singular";
+
+            return new LocValueString("verb" + conjugate);
         }
 
         private ILocValue FuncAttrib(FluentBundle bundle, LocArgs args)

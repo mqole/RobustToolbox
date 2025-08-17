@@ -25,7 +25,7 @@ public sealed partial class GrammarComponent : Component
     {
         get => Attributes.TryGetValue("pronoun", out var p) ?
             _proto.Index<Pronoun>(p) : null;
-        [Obsolete("Use GrammarSystem.SetGender instead")]
+        [Obsolete("Use GrammarSystem.SetPronoun instead")]
         set => IoCManager.Resolve<IEntityManager>().System<GrammarSystem>().SetPronoun((Owner, this), value);
     }
 

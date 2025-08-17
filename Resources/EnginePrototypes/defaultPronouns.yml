@@ -1,0 +1,16 @@
+# default pronouns.
+# locale strings for these are defined in _engine_lib.ftl.
+# any additional pronouns should be added contentside.
+
+- type: pronoun
+  id: he
+
+- type: pronoun
+  id: she
+
+- type: pronoun
+  id: they
+  plural: true
+
+- type: pronoun
+  id: it
