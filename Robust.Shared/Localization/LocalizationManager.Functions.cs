@@ -167,10 +167,10 @@ namespace Robust.Shared.Localization
         /// <summary>
         /// Returns the pronoun prototype used by the entity.
         /// </summary>
-        private Pronoun FuncPronoun(LocArgs args)
+        private PronounPrototype FuncPronoun(LocArgs args)
         {
 
-            if (args.Args.Count < 1) return _proto.Index<Pronoun>("it"); // TODO validate this exists
+            if (args.Args.Count < 1) return _proto.Index<PronounPrototype>("it"); // TODO validate this exists
 
             ILocValue entity0 = args.Args[0];
             if (entity0.Value is EntityUid entity)
@@ -182,11 +182,11 @@ namespace Robust.Shared.Localization
 
                 if (TryGetEntityLocAttrib(entity, "pronoun", out var pronoun))
                 {
-                    return _proto.Index<Pronoun>(pronoun);
+                    return _proto.Index<PronounPrototype>(pronoun);
                 }
             }
 
-            return _proto.Index<Pronoun>("it"); // TODO validate this exists;
+            return _proto.Index<PronounPrototype>("it"); // TODO validate this exists;
         }
 
         /// <summary>

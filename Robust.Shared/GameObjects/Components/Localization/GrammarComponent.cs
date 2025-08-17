@@ -21,10 +21,10 @@ public sealed partial class GrammarComponent : Component
     public Dictionary<string, string> Attributes = new();
 
     [ViewVariables]
-    public Pronoun? Pronoun
+    public PronounPrototype? Pronoun
     {
         get => Attributes.TryGetValue("pronoun", out var p) ?
-            _proto.Index<Pronoun>(p) : null;
+            _proto.Index<PronounPrototype>(p) : null;
         [Obsolete("Use GrammarSystem.SetPronoun instead")]
         set => IoCManager.Resolve<IEntityManager>().System<GrammarSystem>().SetPronoun((Owner, this), value);
     }

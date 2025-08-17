@@ -27,7 +27,7 @@ public sealed class GrammarSystem : EntitySystem
         Dirty(grammar);
     }
 
-    public void SetPronoun(Entity<GrammarComponent> grammar, Pronoun? pronoun)
+    public void SetPronoun(Entity<GrammarComponent> grammar, PronounPrototype? pronoun)
     {
         Set(grammar, "pronoun", pronoun?.ToString());
     }

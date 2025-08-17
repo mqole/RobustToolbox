@@ -4,7 +4,7 @@ using Robust.Shared.Serialization.Manager.Attributes;
 namespace Robust.Shared.Prototypes;
 
 [Prototype]
-public sealed partial class Pronoun : IPrototype
+public sealed partial class PronounPrototype : IPrototype
 {
     // Entities without a grammar component will most frequently be inanimate objects, so we use 'it' as a default value.
 
@@ -90,4 +90,20 @@ public sealed partial class Pronoun : IPrototype
     /// </summary>
     [DataField]
     public bool Plural { get; private set; } = false;
+
+    public PronounPrototype(string id, bool custom, LocId subject, LocId obj, LocId datObj, LocId genitive, LocId possPronoun, LocId possAdj, LocId reflexive, LocId counter, bool plural)
+    {
+        ID = id;
+        Custom = custom;
+        Subject = subject;
+        Object = obj;
+        DatObj = datObj;
+        Genitive = genitive;
+        PossPronoun = possPronoun;
+        PossAdj = possAdj;
+        Reflexive = reflexive;
+        Counter = counter;
+        Plural = plural;
+    }
 }
+
